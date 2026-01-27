@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # 1. Database Service (MongoDB)
+  mongo:
+    image: mongo:6.0
+    container_name: cs420_mongo
+    ports:
+      - "27017:27017" # Map port ra ngoài để Thành viên C có thể dùng MongoDB Compass soi dữ liệu
+    volumes:
+      - mongo_data:/data/db # Giữ dữ liệu không bị mất khi tắt container
+
+  # 2. Backend Service (Node.js)
+  server:
+    build: ./server
+    container_name: cs420_server
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongo:27017/web3_course_db # Kết nối tới service 'mongo'
+    depends_on:
+      - mongo
+    volumes:
+      - ./server:/app # Hot-reload: Sửa code máy thật, container tự cập nhật
+      - /app/node_modules
+
+  # 3. Frontend Service (Vue.js)
+  client:
+    build: ./client
+    container_name: cs420_client
+    ports:
+      - "5173:5173"
+    environment:
+      # Nếu gọi API từ Browser (Client), user gọi thẳng localhost
+      - VITE_API_URL=http://localhost:5000/api
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+
+volumes:
+  mongo_data:
