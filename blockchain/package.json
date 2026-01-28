@@ -1,4 +1,11 @@
 {
   "name": "blockchain",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "type": "module",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "hardhat": "^3.1.5",
+    "solc": "^0.8.0",
+    "web3": "^4.16.0"
+  }
 }
