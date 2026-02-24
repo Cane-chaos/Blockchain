@@ -8,7 +8,7 @@
         </div>
       </header>
 
-      <div class="max-w-6xl mx-auto px-6 py-10 grid lg:grid-cols-3 gap-10">
+      <div v-if="course" class="max-w-6xl mx-auto px-6 py-10 grid lg:grid-cols-3 gap-10">
         
         <div class="lg:col-span-2 bg-gradient-to-r from-indigo-100 to-blue-200 p-8 rounded-lg shadow">
           <h2 class="text-2xl font-semibold mb-6">Billing information</h2>
@@ -37,8 +37,8 @@
               Connect Wallet
             </button>
 
-            <button v-else @click="pay" class="bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700">
-              Pay {{ course.price }} ETH
+            <button v-else @click="pay" :disabled="isLoading" class="bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700 disabled:opacity-50">
+              {{ isLoading ? 'Processing...' : `Pay ${course.price} ETH` }}
             </button>
           </div>
         </div>
@@ -63,41 +63,115 @@
           </p>
         </aside>
       </div>
+      <div v-else class="text-center py-20 text-white">
+        <p>Đang tải thông tin thanh toán...</p>
+      </div>
     </div>
   </section>
 
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref, onMounted } from "vue"
+import { useRoute } from "vue-router"
+import { walletAddress, connectWallet, initWallet } from '../stores/wallet'
+import Web3 from "web3"
+import deploymentInfo from "../deployment-info.json"
 
+const route = useRoute()
 const name = ref("")
-const walletAddress = ref(null)
+const isLoading = ref(false)
+const course = ref(null)
 
-const course = {
-  title: "Blockchain Fundamentals",
-  price: "0.05",
-  duration: "2 weeks • Beginner"
-}
-
-const connectWallet = async () => {
-  if (!window.ethereum) {
-    alert("MetaMask not installed")
+const pay = async () => {
+  if (!walletAddress.value) {
+    alert("Vui lòng kết nối ví trước!")
     return
   }
 
-  const accounts = await window.ethereum.request({
-    method: "eth_requestAccounts"
-  })
+  if (!window.ethereum) {
+    alert("Chưa cài đặt MetaMask!")
+    return
+  }
 
-  walletAddress.value = accounts[0]
+  try {
+    isLoading.value = true
+    
+    // Khởi tạo Web3 qua MetaMask
+    const web3 = new Web3(window.ethereum)
+    
+    const contract = new web3.eth.Contract(
+      deploymentInfo.contractABI, 
+      deploymentInfo.contractAddress
+    )
+    
+    // Kiểm tra xem khoá học đã được tạo trên Smart Contract chưa
+    const courseOnChain = await contract.methods.courses(course.value.id).call();
+    
+    if (!courseOnChain.exists) {
+        console.log("Khoá học chưa có trên Blockchain. Đang tự động tạo...");
+        const amountInWei = web3.utils.toWei(course.value.price, 'ether');
+        
+        // Gọi hàm createCourse (ai cũng gọi được vì đã bỏ onlyOwner)
+        await contract.methods.createCourse(course.value.id, course.value.title, amountInWei).send({
+           from: walletAddress.value,
+           gas: 3000000 
+        });
+        console.log("Tạo khoá học thành công! Tiếp tục thanh toán...");
+    }
+
+    // Giá thành Wei
+    const amountInWei = web3.utils.toWei(course.value.price, 'ether')
+    
+    // Gửi transaction buyCourse!
+    const tx = await contract.methods.buyCourse(course.value.id).send({
+      from: walletAddress.value,
+      value: amountInWei,
+      gas: 3000000
+    })
+    
+    // Lưu lịch sử mua hàng vào MongoDB Web2 Backend
+    try {
+       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+       await fetch(`${apiUrl}/enrollments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+             wallet: walletAddress.value,
+             courseId: course.value.id,
+             txHash: tx.transactionHash
+          })
+       });
+    } catch (dbErr) {
+       console.error("Lỗi lưu Database Backend:", dbErr);
+    }
+    
+    alert(`🎉 Mua khóa học thành công!\nTransaction Hash: ${tx.transactionHash}`)
+  } catch (error) {
+    console.error("Transaction Error:", error)
+    alert(`❌ Giao dịch thất bại:\n${error.message}`)
+  } finally {
+    isLoading.value = false
+  }
 }
 
-const pay = async () => {
-  alert(`
-Payment demo success 🎉
-From: ${walletAddress.value}
-Course: ${course.title}
-Amount: ${course.price} ETH`)
-}
+onMounted(async () => {
+  initWallet();
+  const id = route.params.id;
+  if (id) {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+      const res = await fetch(`${apiUrl}/courses/${id}`);
+      const result = await res.json();
+      if (result.data) {
+        course.value = {
+          ...result.data,
+          duration: "4 weeks • Beginner" // Placeholder nếu Backend chưa có fields này
+        };
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+});
 </script>

@@ -33,24 +33,37 @@
 <script setup>
 import Hero from "@/components/Hero.vue"
 import CourseCard from "@/components/CourseCard.vue"
-import courses from "@/services/courses.json"
 import CareerSkills from '@/components/CareerSkills.vue'
 import VideoSection from '@/components/VideoSection.vue'
 import TestimonialsSection from '@/components/TestimonialsSection.vue'
 import FaqSection from '@/components/FaqSection.vue'
 import LearningPathSection from '@/components/LearningPathSection.vue'
 
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
+const courses = ref([]) // Dữ liệu sẽ được load từ Backend Middleware sau này
 const expanded = ref(false)
 
 const visibleCourses = computed(() => {
   return expanded.value
-    ? courses.slice(0, 5)   
-    : courses.slice(0, 2)   
+    ? courses.value.slice(0, 5)   
+    : courses.value.slice(0, 2)   
 })
 
 function expandCourses() {
   expanded.value = true
 }
+
+onMounted(async () => {
+  try {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+    const res = await fetch(`${apiUrl}/courses`);
+    const result = await res.json();
+    if (result.data) {
+      courses.value = result.data;
+    }
+  } catch (error) {
+    console.error("Lỗi khi tải danh sách khóa học:", error);
+  }
+})
 </script>

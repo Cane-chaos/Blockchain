@@ -41,7 +41,6 @@
 <script setup>
 import { ref, watchEffect, onMounted, onUnmounted } from "vue"
 import { useRoute } from "vue-router"
-import { fetchCourseBySlug } from "@/services/courseApi"
 
 import CourseHero from "@/components/CourseHero.vue"
 import CourseSidebar from "@/components/CourseSidebar.vue"
@@ -59,8 +58,42 @@ const course = ref(null)
 const activeTab = ref("about")
 
 watchEffect(async () => {
-  const slug = route.params.slug
-  if (slug) course.value = await fetchCourseBySlug(slug)
+  const id = route.params.id
+  if (id) {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+      const res = await fetch(`${apiUrl}/courses/${id}`);
+      const result = await res.json();
+      if (result.data) {
+        // Gắn placeholder data để UI CourseDetail không bị lỗi
+        course.value = {
+          ...result.data,
+          subtitle: `Learn ${result.data.title} from scratch`,
+          language: 'English',
+          level: 'Beginner',
+          duration: '4 weeks',
+          enrolled: Math.floor(Math.random() * 100000),
+          rating: 4.7,
+          totalHours: 24,
+          articles: 10,
+          quizzes: 5,
+          cover: result.data.image || "https://placehold.co/800x450",
+          instructors: [
+            { id: 1, name: 'Senior Instructor', title: 'Blockchain Expert', avatar: 'https://placehold.co/120' }
+          ],
+          reviews: [
+            { id: 1, name: 'Student', rating: 5, text: 'Very good course!' }
+          ],
+          curriculum: [],
+          about: {
+            learning: ["Blockchain fundamentals", "Web3 Integration", "Smart Contracts"]
+          }
+        };
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
 })
 
 

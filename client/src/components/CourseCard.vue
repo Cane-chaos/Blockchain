@@ -11,7 +11,7 @@
      <button v-else class="btn btn-sm btn-primary">Beginner</button>
       <div class="flex items-center justify-between gap-4">
         <div class="text-blue-600 font-bold">{{ course.price }}</div>
-        <router-link :to="`/courses/${course.slug}`" class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-2 rounded-md hover:bg-brand-600">View Details</router-link>
+        <router-link :to="`/courses/${course.id}`" class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-2 rounded-md hover:bg-brand-600">View Details</router-link>
       </div>
     </div>
   </div>

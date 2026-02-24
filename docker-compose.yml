@@ -6,37 +6,58 @@ services:
     image: mongo:6.0
     container_name: cs420_mongo
     ports:
-      - "27017:27017" # Map port ra ngoài để Thành viên C có thể dùng MongoDB Compass soi dữ liệu
+      - "27017:27017"
     volumes:
-      - mongo_data:/data/db # Giữ dữ liệu không bị mất khi tắt container
+      - mongo_data:/data/db
 
-  # 2. Backend Service (Node.js)
+  # (Removed ganache service to use Ganache Desktop on Host OS)
+
+  # 3. Smart Contract Deployer Service
+  blockchain:
+    image: node:18-alpine
+    container_name: cs420_blockchain
+    working_dir: /app
+    volumes:
+      - ./blockchain:/app
+      - ./client/src:/client-src
+    environment:
+      - GANACHE_URL=http://host.docker.internal:7545
+      - OUTPUT_DIR=/client-src
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # Cài package và deploy, sau đó exit
+    command: /bin/sh -c "npm install --legacy-peer-deps && node --experimental-modules scripts/deploy.js"
+
+  # 4. Backend Service (Node.js)
   server:
     build: ./server
     container_name: cs420_server
     ports:
-      - "5000:5000"
+      - "8080:8080"
     environment:
-      - PORT=5000
-      - MONGO_URI=mongodb://mongo:27017/web3_course_db # Kết nối tới service 'mongo'
+      - PORT=8080
+      - MONGO_URI=mongodb://mongo:27017/web3_course_db
     depends_on:
       - mongo
     volumes:
-      - ./server:/app # Hot-reload: Sửa code máy thật, container tự cập nhật
+      - ./server:/app
       - /app/node_modules
+    command: /bin/sh -c "npm install && npm start"
 
-  # 3. Frontend Service (Vue.js)
+  # 5. Frontend Service (Vue.js)
   client:
     build: ./client
     container_name: cs420_client
     ports:
       - "5173:5173"
     environment:
-      # Nếu gọi API từ Browser (Client), user gọi thẳng localhost
-      - VITE_API_URL=http://localhost:5000/api
+      - VITE_API_URL=http://localhost:8080/api
+    depends_on:
+      - blockchain
     volumes:
       - ./client:/app
       - /app/node_modules
+    command: /bin/sh -c "npm install && npm run dev -- --host"
 
 volumes:
   mongo_data:

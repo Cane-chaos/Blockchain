@@ -17,7 +17,7 @@
         </div>
         <div class="mt-6 flex items-center gap-3 text-white">
           <button class=" bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-5 py-3 rounded-lg font-semibold"
-            @click="$router.push('/checkout')">Enroll</button>
+            @click="$router.push(`/checkout/${course.id}`)">Enroll</button>
           <button class="border px-6 py-3 rounded-lg hover:scale-105 transition font-semibold hover:bg-blue-500/30"
             @click="$emit('preview')">
             Preview course

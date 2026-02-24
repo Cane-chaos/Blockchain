@@ -12,7 +12,7 @@ const routes = [
   { path: "/profile", name: "Profile", component: Profile },
 
   {
-    path: "/courses/:slug",
+    path: "/courses/:id",
     name: "CourseDetail",
     component: CourseDetail,
     props: true,
@@ -23,7 +23,7 @@ const routes = [
     component: Courses,
   },
   {
-    path: "/checkout",
+    path: "/checkout/:id",
     name: "Checkout",
     component: () => import("@/pages/Checkout.vue"),
   },

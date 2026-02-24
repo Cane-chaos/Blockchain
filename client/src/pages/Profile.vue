@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gradient-to-r from-gray-700 to-gray-900 py-8">
+  <div class="bg-gradient-to-r from-gray-700 to-gray-900 py-8 min-h-screen">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
       integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
       crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -18,68 +18,50 @@
                    px-4 py-2 rounded-lg text-sm hover:bg-pink-100">
               <i class="fa-solid fa-link me-1"></i> Share profile link
             </button>
-
-            <p class="mt-4 text-sm text-dark/10 cursor-pointer">Update profile visibility</p>
-          </div>
-
-          <div class="bg-gradient-to-r from-indigo-100 to-blue-200 rounded-xl shadow p-6">
-            <div class="flex justify-between items-center mb-4">
-              <h3 class="font-semibold">Work preferences</h3>
+            
+            <div class="mt-6 text-left">
+              <p class="text-sm font-semibold mb-1">Connected Wallet:</p>
+              <p class="text-xs text-gray-700 break-all bg-white p-2 rounded border border-gray-300">
+                {{ walletAddress || 'Not connected' }}
+              </p>
             </div>
-
-            <p class="text-sm text-dark mb-2">Desired roles</p>
-
-            <ul class="space-y-2 text-sm">
-              <li><i class="fa-solid fa-user me-2"></i>Data Scientist</li>
-              <li><i class="fa-solid fa-user me-2"></i>IT Project Manager</li>
-              <li><i class="fa-solid fa-user me-2"></i>Data Scientist</li>
-              <li><i class="fa-solid fa-user me-2"></i>IT Project Manager</li>
-            </ul>
-          </div>
-
-          <div class="bg-gradient-to-r from-indigo-100 to-blue-200 rounded-xl shadow p-6">
-            <div class="flex justify-between items-center mb-4">
-              <h3 class="font-semibold">Additional info</h3>
-            </div>
-            <p class="text-sm text-dark mb-2">Help recruiters get to know you better by describing what makes you a great candidate and sharing other links.</p>
-            <button class="border border-pink-700 text-dark bg-white px-4 py-2 rounded-lg text-sm hover:bg-pink-100">+ Add a additional info</button>
           </div>
         </div>
 
         <div class="col-span-12 md:col-span-8 space-y-10">
           <section>
-            <h2 class="text-2xl font-bold mb-4 text-white">Experience</h2>
+            <h2 class="text-2xl font-bold mb-4 text-white">My Enrolled Courses</h2>
 
-            <div class="bg-gradient-to-r from-indigo-100 to-blue-200 rounded-xl shadow p-6 mb-6">
-              <div class="flex justify-between items-center">
-                <h3 class="font-semibold">Projects</h3>
-                <span class="text-gray text-sm cursor-pointer">Browse Projects</span>
-              </div>
+            <div v-if="isLoading" class="text-white">
+              <i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading your courses from blockchain...
+            </div>
+            
+            <div v-else-if="!walletAddress" class="bg-gradient-to-r from-indigo-100 to-blue-200 rounded-xl shadow p-6 text-center text-dark">
+              Please connect your MetaMask wallet to view your purchased courses.
+            </div>
 
-              <div class="mt-4 bg-white p-4 rounded-lg text-sm text-dark">Showcase your skills to recruiters with job-relevant projects. Add projects here to demonstrate your technical expertise and ability to solve real-world problems.
+            <div v-else-if="myCourses.length === 0" class="bg-gradient-to-r from-indigo-100 to-blue-200 rounded-xl shadow p-6 text-center text-dark">
+              You haven't enrolled in any courses yet.
+              <br>
+              <router-link to="/courses" class="text-indigo-600 hover:underline mt-2 inline-block">Browse available courses</router-link>
+            </div>
+
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div v-for="course in myCourses" :key="course.id" class="bg-white rounded-xl shadow overflow-hidden flex flex-col">
+                <img :src="course.image" :alt="course.title" class="w-full h-40 object-cover" />
+                <div class="p-6 flex-1 flex flex-col">
+                  <h3 class="font-bold text-lg mb-2 text-dark">{{ course.title }}</h3>
+                  <p class="text-gray-500 text-sm mb-4">Instructor: {{ course.instructor || 'Web3 Master' }}</p>
+                  <div class="mt-auto">
+                    <router-link :to="`/courses/${course.id}`" class="block text-center bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 w-full">
+                      Go to Course
+                    </router-link>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="bg-gradient-to-r from-indigo-100 to-blue-200 rounded-xl shadow p-6">
-              <div class="flex justify-between items-center">
-                <h3 class="font-semibold">Work history</h3>
-                <button class="border border-pink-700 text-dark bg-white px-4 py-2 rounded-lg text-sm hover:bg-pink-100">+ Add work experience</button>
-              </div>
-
-              <div class="mt-4 bg-white p-4 rounded-lg text-sm text-dark">Add your past work experience here. If you’re just starting out, you can add internships or volunteer experience instead.
-              </div>
-            </div>
           </section>
-
-          <section>
-            <h2 class="text-2xl font-bold mb-4 text-white">Education</h2>
-
-            <div class="bg-gradient-to-r from-indigo-100 to-blue-200 rounded-xl shadow p-6 flex justify-between items-center">
-              <h3 class="font-semibold">Credentials <i class="fa-solid fa-circle-info  ms-2"></i></h3>
-              <button class="border border-pink-700 text-dark bg-white px-4 py-2 rounded-lg text-sm hover:bg-pink-100">+ Add</button>
-            </div>
-          </section>
-
         </div>
       </div>
     </section>
@@ -88,5 +70,67 @@
 </template>
 
 <script setup>
-// truyền props hoặc lấy dữ liệu từ API thật
+import { ref, onMounted, watch } from "vue"
+import Web3 from "web3"
+import { walletAddress, initWallet } from '../stores/wallet'
+import deploymentInfo from "../deployment-info.json"
+
+const myCourses = ref([])
+const isLoading = ref(true)
+
+const loadUserCourses = async () => {
+  if (!walletAddress.value) {
+    isLoading.value = false
+    myCourses.value = []
+    return
+  }
+
+  try {
+    isLoading.value = true
+    
+    // 1. Fetch all available courses from DB
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+    const res = await fetch(`${apiUrl}/courses`);
+    const dbResult = await res.json();
+    const allCourses = dbResult.data || [];
+
+    // 2. Init Web3 and Contract
+    const web3 = new Web3(window.ethereum)
+    const contract = new web3.eth.Contract(
+      deploymentInfo.contractABI, 
+      deploymentInfo.contractAddress
+    )
+
+    // 3. Loop and verify ownership
+    const ownedCourses = [];
+    for (const course of allCourses) {
+      if (course.id) {
+         try {
+           const isBought = await contract.methods.isPurchased(walletAddress.value, course.id).call();
+           if (isBought) {
+             ownedCourses.push(course);
+           }
+         } catch (err) {
+           console.warn(`Error checking ownership for course ${course.id}:`, err)
+         }
+      }
+    }
+    
+    myCourses.value = ownedCourses;
+  } catch (error) {
+    console.error("Failed to load user courses:", error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(() => {
+  initWallet()
+  loadUserCourses()
+})
+
+// Reload if user switches account
+watch(walletAddress, () => {
+  loadUserCourses()
+})
 </script>
