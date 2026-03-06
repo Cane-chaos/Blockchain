@@ -4,6 +4,7 @@ import CourseDetail from "@/pages/CourseDetail.vue";
 import Profile from "@/pages/Profile.vue";
 import Explore from "@/pages/Explore.vue";
 import Courses from "@/pages/Courses.vue";
+import LearnCourse from "@/pages/LearnCourse.vue"
 
 const routes = [
   { path: "/", name: "Home", component: Home },
@@ -27,6 +28,11 @@ const routes = [
     name: "Checkout",
     component: () => import("@/pages/Checkout.vue"),
   },
+  {
+  path: "/learn/:id",
+  name: "learn",
+  component: LearnCourse
+}
 ];
 const router = createRouter({
   history: createWebHistory(),

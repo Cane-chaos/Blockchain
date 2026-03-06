@@ -23,6 +23,23 @@ router.get("/:wallet", async (req, res) => {
     }
 });
 
+router.get("/check", async (req, res) => {
+
+  const { wallet, courseId } = req.query
+
+  const enrollment = await Enrollment.findOne({
+    wallet: wallet,
+    courseId: courseId
+  })
+
+  if (enrollment) {
+    res.json({ enrolled: true })
+  } else {
+    res.json({ enrolled: false })
+  }
+
+})
+
 /**
  * POST /api/enrollments
  * Record a new course purchase

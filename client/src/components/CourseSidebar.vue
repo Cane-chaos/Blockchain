@@ -3,11 +3,6 @@
     <div class="bg-white rounded-xl p-6 shadow">
       <div class="text-sm text-gray-500">Full course</div>
       <div class="text-2xl font-bold mt-2">{{ course.priceDisplay }}</div>
-      <div class="mt-4">
-        <button @click="$router.push('/checkout')"
-          class="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-3 rounded-lg font-semibold">Enroll for {{ course.price }} </button>
-      </div>
-
       <ul class="mt-4 text-sm text-gray-600 space-y-2">
         <li><strong>{{ course.totalHours }}</strong> hours on-demand video</li>
         <li><strong>{{ course.articles }}</strong> articles</li>

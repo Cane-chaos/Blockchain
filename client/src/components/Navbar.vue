@@ -64,11 +64,8 @@
               </div>
             </div>
           </div>
-
-          <router-link to="/profile" class="hover:text-gray-300">Profile</router-link>
         </div>
       </div>
-
       <div class="flex items-center gap-4">
         <div class="flex items-center bg-white/90 rounded-lg px-3 py-2 gap-2 w-72">
           <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,7 +73,7 @@
           </svg>
           <input v-model="q" @keyup.enter="onSearch" placeholder="What do you want to learn?" class="bg-transparent outline-none text-sm flex-1 text-gray-800" />
         </div>
-
+          <router-link to="/profile" class="text-white font-semibold hover:text-white">Profile</router-link>
         <WalletButton />
       </div>
     </nav>

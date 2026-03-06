@@ -1,5 +1,5 @@
 {
-  "contractAddress": "0xbF1833A96cB6Fd4F4AeC1cE7f0c6403F244Cb99e",
+  "contractAddress": "0x77d02b0fb8651f5a16Daf882C6eeF42f20B94a76",
   "contractABI": [
     {
       "inputs": [],
@@ -214,6 +214,6 @@
   "network": "ganache",
   "networkUrl": "http://127.0.0.1:7545",
   "chainId": 1337,
-  "deployedAt": "2026-02-24T14:01:55.123Z",
-  "deployer": "0x056c52A678B141f21f57826c0345D2EcC6dc116A"
+  "deployedAt": "2026-03-06T09:54:38.464Z",
+  "deployer": "0x2b2B923dC2675dDB8A9870241023cE34e616a8F4"
 }

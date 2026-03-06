@@ -74,6 +74,7 @@
 <script setup>
 import { ref, onMounted } from "vue"
 import { useRoute } from "vue-router"
+import { useRouter } from "vue-router"
 import { walletAddress, connectWallet, initWallet } from '../stores/wallet'
 import Web3 from "web3"
 import deploymentInfo from "../deployment-info.json"
@@ -82,6 +83,7 @@ const route = useRoute()
 const name = ref("")
 const isLoading = ref(false)
 const course = ref(null)
+const router = useRouter()
 
 const pay = async () => {
   if (!walletAddress.value) {
@@ -146,7 +148,9 @@ const pay = async () => {
        console.error("Lỗi lưu Database Backend:", dbErr);
     }
     
-    alert(`🎉 Mua khóa học thành công!\nTransaction Hash: ${tx.transactionHash}`)
+    alert(`🎉 Mua khóa học thành công!`)
+    //Chuyển sang trang học
+    router.push(`/learn/${course.value.id}`)
   } catch (error) {
     console.error("Transaction Error:", error)
     alert(`❌ Giao dịch thất bại:\n${error.message}`)

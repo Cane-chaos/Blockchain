@@ -40,7 +40,6 @@ contract Marketplace {
             price: _price,
             exists: true
         });
-
         emit CourseCreated(_id, _title, _price);
     }
 
