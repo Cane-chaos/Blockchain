@@ -4,6 +4,29 @@ const Enrollment = require("../models/Enrollment");
 const router = express.Router();
 
 /**
+ * GET /api/enrollments/check?wallet=...&courseId=...
+ * MUST be declared BEFORE /:wallet to avoid route conflict
+ */
+router.get("/check", async (req, res) => {
+    try {
+        const { wallet, courseId } = req.query
+
+        if (!wallet || !courseId) {
+            return res.status(400).json({ error: "BAD_REQUEST", message: "Missing wallet or courseId" })
+        }
+
+        const enrollment = await Enrollment.findOne({
+            wallet: { $regex: new RegExp(`^${wallet}$`, 'i') },
+            courseId: courseId
+        })
+
+        res.json({ enrolled: !!enrollment })
+    } catch (err) {
+        res.status(500).json({ error: "SERVER_ERROR", message: err.message })
+    }
+})
+
+/**
  * GET /api/enrollments/:wallet
  * Get all course IDs owned by a specific wallet
  */
@@ -21,23 +44,6 @@ router.get("/:wallet", async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: "SERVER_ERROR", message: err.message });
     }
-});
-
-router.get("/check", async (req, res) => {
-
-  const { wallet, courseId } = req.query
-
-  const enrollment = await Enrollment.findOne({
-    wallet: wallet,
-    courseId: courseId
-  })
-
-  if (enrollment) {
-    res.json({ enrolled: true })
-  } else {
-    res.json({ enrolled: false })
-  }
-
 })
 
 /**

@@ -53,7 +53,7 @@
                   <h3 class="font-bold text-lg mb-2 text-dark">{{ course.title }}</h3>
                   <p class="text-gray-500 text-sm mb-4">Instructor: {{ course.instructor || 'Web3 Master' }}</p>
                   <div class="mt-auto">
-                    <router-link :to="`/courses/${course.id}`" class="block text-center bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 w-full">
+                    <router-link :to="`/learn/${course.id}`" class="block text-center bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 w-full">
                       Go to Course
                     </router-link>
                   </div>
